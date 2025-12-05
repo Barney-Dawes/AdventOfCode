@@ -7,6 +7,9 @@ rm(list = ls())
 library(stringr)
 library(dplyr)
 
+#timing how long the code takes to run
+start <- Sys.time()
+
 #reading in the txt file
 input <- read.table("input - day 1.txt", sep = " ")
 
@@ -38,25 +41,44 @@ output$passes_zero <- 0
 #looping over each time we changed the dial's position and checking if the dial went past zero
 for (step in 1:length(input_num)){
   #finding the number of 'hundreds' for the current row in the dial column and the row above, i.e. 123 has one 'hundred' and -498 has four 'hundreds' as we ignore sign
-  no_hundreds <- trunc(output[step:(step + 1), "Dial"] / 100)
+  no_hundreds <- floor(output[step:(step + 1), "Dial"] / 100)
   
-  #finding the number of times the rotation passed by zero
-  output$passes_zero[step + 1] <- no_hundreds[2] - no_hundreds[1]
+  #giving logical conditions shorter names to shorten next section
+  a <- output$Dial[step] %% 100 == 0
+  b <- output$Dial[step + 1] %% 100 == 0
+  c <- output$Dial[step] < output$Dial[step + 1]
+  
+  #finding the number of times the rotation passed by zero, the complex conditions arise if the dial starts or ends on a multiple of 100
+  if((a && b) | (!a && b && c) | (a && !b && !c)){
+    output$passes_zero[step + 1] <- abs(no_hundreds[2] - no_hundreds[1]) - 1
+    
+  } else if ((!a && !b) | (!a && b && !c) | (a && !b && c)){
+    output$passes_zero[step + 1] <- abs(no_hundreds[2] - no_hundreds[1])
+      
+    #if the variable 'logic_check' gets defined then we know that the two conditions above don't span every possibility
+  } else {
+    logic_check <- TRUE
+  }
   
 }
 
+if(exists("logic_check")){
+  print("Logical conditions don't cover all possible cases")
+}
 
 
-#finding how many of the dial's values are multiples of 100 or where the dial goes past zero
-output_mod <- output[(output[, "Dial"] %% 100) == 0 | output[, "passes_zero"], ]
-
-#the answer is the number of times the dial was set to zero
-answer_part1 <- length(output_mod)
+#### Finding the answers to part 1 and 2 ####
 
 
+#the answer to part 1 is the number of times the dial was set to zero
+answer_part1 <- length(output$Dial[output$Dial %% 100 == 0])
 
-#if the number of hundreds isn't the same, i.e. there's been a change, then we have gone past zero. 
-#Also have to consider cases where we start at zero and then rotate, as this wouldn't count as going past zero but would involve a change in the hundreds 
-if((no_hundreds[1] != no_hundreds[2]) & 
-   (no_hundreds[1] %% 100 != 0))
-  output[step + 1, "passes_zero"] <- TRUE
+#the answer to part 2 is the number of times it was set to zero plus the times it passed zero without stopping on it
+answer_part2 <- answer_part1 + sum(output$passes_zero)
+
+#measuring how long the code took to run
+time_to_run <- difftime(Sys.time(), start) %>% round(digits = 3)
+
+print(paste("code runtime was: ", time_to_run, units(time_to_run)))
+
+
