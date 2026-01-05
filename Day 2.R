@@ -86,35 +86,8 @@ answer_1 <- invalid_IDs %>%
 #### Part 2 ####
 
 
-# #function to compare multiple numbers together to see if they're the same
-# num_comp <- function(vector){
-#   
-#   #predefine the length of the output vector for speed
-#   output <- vector(length = length(vector))
-#   
-#   #for each element of the vector we check whether it's the same value as the first
-#   for (i in 1:length(vector)){
-#     if (vector[1] == vector[i]){
-#       output[i] <- TRUE
-#     
-#     #if even one of the pairs don't match then we know that the whole vector isn't a series of repeated sections
-#     } else {
-#       break
-#     }
-#   }
-#   
-#   #if all the elements have the same value as the first, then all elements are equal
-#   return(all(output))
-# }
-
-
-
-
 #creating a new version of our pattern checking function to now detect when there's any type of repeated pattern, i.e. 555 would now be considered an invalid ID
 pattern_check2 <- function(x){
-  
-  # input type
-  #x <- 10:12
   
   #creating the vector where we'll store our answers at the start, rather than building it incrementally, for speed
   output <- rep(FALSE, times = length(x))
@@ -196,4 +169,3 @@ for (i in 1:nrow(split_data)){
 answer_2 <- invalid_IDs %>% 
   unlist() %>% 
   sum()
-
