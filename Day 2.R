@@ -20,7 +20,7 @@ transpose <- t(input)
 split_data <- transpose %>% 
   str_split(, pattern = "-") %>% #creates two elements, one for the first and last number
   data.frame() %>% #turns the list into a dataframe
-  t() %>% 
+  t() %>% #transpose the data
   apply(MARGIN = 2, as.numeric) %>% #converts the values from being characters to numerics
   as.data.frame()
   
@@ -93,9 +93,6 @@ pattern_check2 <- function(x){
   output <- rep(FALSE, times = length(x))
   
   for (i in 1:length(x)){
-
-    # #finding the prime factorisation of nchars
-    # primes_of_nchars <- primeFactors(nchars) %>% unique()
     
     #extracting the digits of the number
     digits <- strsplit(as.character(x[i]), "") %>% unlist %>% as.numeric()
@@ -104,8 +101,8 @@ pattern_check2 <- function(x){
     
     #first check if it's a single digit repeated or an integer between 1-9 inclusive
     if (length(unique(digits)) == 1 && nchars > 1){
+      
       output[i] <- TRUE
-      #return(TRUE) or output <- TRUE
       
     } else {
       
@@ -169,3 +166,11 @@ for (i in 1:nrow(split_data)){
 answer_2 <- invalid_IDs %>% 
   unlist() %>% 
   sum()
+
+
+microbenchmark(
+  v1 = pattern_check(1:100000),
+  v2 = pattern_check2(1:100000),
+  times = 10
+)
+
